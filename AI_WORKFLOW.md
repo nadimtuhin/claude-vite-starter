@@ -4,6 +4,28 @@ How to build with Claude Code effectively. Distilled from real project experienc
 
 ---
 
+## Prerequisites: Global Skills
+
+Some prompts in this playbook require the **oh-my-claudecode** plugin installed globally. Without it, `ultrawork`, `plan`, and session snapshots won't activate.
+
+**Install once:**
+```bash
+claude mcp add oh-my-claudecode  # or follow https://github.com/oh-my-claude/oh-my-claudecode
+```
+
+**This template also ships project-local skills** in `.claude/skills/` — these work immediately without any global setup:
+
+| Skill | Trigger | What it does |
+|---|---|---|
+| `run` | "run the app", "start dev server" | Starts Vite, checks for port conflicts |
+| `deploy` | "deploy", "commit push deploy prod" | Test → commit chunks → push → Vercel prod |
+| `tdd-check` | "red green tdd e2e done?" | Verifies all 4 test layers are covered |
+| `api-docs` | "check the full api and save in repo {url}" | Fetches + saves external API docs |
+
+Project-local skills live in `.claude/skills/{name}/SKILL.md`. Claude picks them up automatically when you open the project.
+
+---
+
 ## Session Start
 
 ```bash
@@ -140,5 +162,69 @@ Claude will:
 | `src/components/` | React UI components | Claude |
 | `src/integration/` | Real network tests | Claude |
 | `src/e2e/` | Multi-step user journeys | Claude |
+| `.claude/skills/` | Project-local Claude skills | You |
 | `CLAUDE.md` | Project rules for AI | You (with Claude help) |
 | `AI_WORKFLOW.md` | This file | You |
+
+---
+
+## Writing Project-Local Skills
+
+Add a skill when you find yourself typing the same multi-step instruction repeatedly, or when Claude keeps getting a workflow wrong.
+
+### File location
+
+```
+.claude/skills/{skill-name}/SKILL.md
+```
+
+### Format
+
+```markdown
+---
+name: skill-name
+description: When to invoke — list trigger phrases the user would type. This is what Claude scans to decide whether to activate the skill.
+---
+
+# Skill Title
+
+## Step 1: ...
+
+## Step 2: ...
+
+## Rules
+- Rule 1
+- Rule 2
+```
+
+### Good skill candidates
+
+| Trigger | Write a skill for... |
+|---|---|
+| Repeated deployment steps | `deploy` — project-specific deploy sequence |
+| Non-obvious test command | `test` — custom test flags or setup |
+| External service integration | `{service}` — auth flow, rate limits, quirks |
+| Domain-specific workflow | `{workflow}` — multi-step business process |
+
+### What makes a good skill
+
+- **Specific triggers**: Claude activates skills by matching description text against what you type. More specific = fewer false activations.
+- **Steps not rules**: Skills work best as procedures ("do X then Y") not policies ("always Z").
+- **Short**: Under 100 lines. If it's longer, split into two skills.
+- **Tested**: After writing, type the trigger phrase and verify Claude activates the skill.
+
+### Example: custom deploy skill
+
+```markdown
+---
+name: deploy-staging
+description: Deploy to staging environment. Triggers: "deploy staging", "push to staging", "test on staging".
+---
+
+# Deploy to Staging
+
+1. Run tests: `pnpm test -- --run`
+2. Build: `pnpm run build`
+3. Deploy: `vercel --target=staging`
+4. Report preview URL
+```
