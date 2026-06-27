@@ -1,7 +1,14 @@
 {
   "name": "claude-vite-starter",
-  "private": true,
   "version": "0.0.0",
+  "description": "Forkable React + Vite starter template optimised for Claude Code — includes Vitest, Tailwind, GitHub Actions CI, and AI workflow conventions",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nadimtuhin/claude-vite-starter.git"
+  },
+  "homepage": "https://github.com/nadimtuhin/claude-vite-starter#readme",
+  "keywords": ["react", "vite", "starter", "template", "claude", "ai", "tailwindcss", "vitest"],
   "type": "module",
   "scripts": {
     "dev": "vite",
